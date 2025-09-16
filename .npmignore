@@ -1,0 +1,94 @@
+# Source control
+.git/
+.gitignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+azure-pipelines.yml
+
+# Development dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+jest.config.js
+.nyc_output/
+coverage/
+
+# Build tools
+webpack.config.js
+rollup.config.js
+babel.config.js
+.babelrc
+tsconfig.json
+tslint.json
+.eslintrc*
+.prettierrc*
+
+# Documentation (optional - remove if you want to include)
+docs/
+example/
+examples/
+demo/
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env*
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.yarn/
+
+# Temporary files
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Lock files (optional - npm will generate its own)
+package-lock.json
+yarn.lock
+
+# Editor backup files
+*~
+*.bak
+*.tmp
+
+# Misc
+*.tgz
+*.tar.gz
+.api-sniffer-logs.json

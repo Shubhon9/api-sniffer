@@ -1,0 +1,119 @@
+{
+  "name": "api-sniffer",
+  "version": "1.0.1",
+  "description": "Middleware for Express, Koa, and Fastify to log API requests and responses with CLI dashboard",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./express": {
+      "import": "./dist/middleware.js",
+      "require": "./dist/middleware.js",
+      "types": "./dist/middleware.d.ts"
+    },
+    "./koa": {
+      "import": "./dist/middleware.js",
+      "require": "./dist/middleware.js",
+      "types": "./dist/middleware.d.ts"
+    },
+    "./fastify": {
+      "import": "./dist/middleware.js",
+      "require": "./dist/middleware.js",
+      "types": "./dist/middleware.d.ts"
+    },
+    "./store": {
+      "import": "./dist/store.js",
+      "require": "./dist/store.js",
+      "types": "./dist/store.d.ts"
+    },
+    "./cli": "./dist/cli.js"
+  },
+  "bin": {
+    "api-sniffer": "./dist/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/cli.js",
+    "build": "npm run clean && npm run copy-files && npm run minify && npm run build:types",
+    "clean": "rimraf dist",
+    "copy-files": "mkdir dist && xcopy src dist /E /I /Y",
+    "minify": "node scripts/minify.js",
+    "build:types": "echo \"TypeScript definitions are manually maintained\"",
+    "prepublishOnly": "npm run build && npm run lint || true",
+    "lint": "echo \"No linter configured\""
+  },
+  "keywords": [
+    "api",
+    "logging",
+    "middleware",
+    "express",
+    "koa",
+    "fastify",
+    "monitoring",
+    "debugging",
+    "cli",
+    "dashboard",
+    "http",
+    "request",
+    "response",
+    "analytics",
+    "development",
+    "testing"
+  ],
+  "author": "Shubham Kumar",
+  "license": "MIT",
+  "homepage": "https://github.com/Shubhon9/api-sniffer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shubhon9/api-sniffer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Shubhon9/api-sniffer/issues"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "commander": "^9.4.1",
+    "express": ">=4.0.0",
+    "ws": "^8.14.2"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0",
+    "fastify": ">=3.0.0",
+    "koa": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "koa": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "package.json",
+    "*.md"
+  ],
+  "sideEffects": false,
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "terser": "^5.44.0",
+    "koa": "^2.14.2",
+    "@koa/router": "^12.0.0",
+    "koa-bodyparser": "^4.4.1",
+    "fastify": "^4.24.3"
+  }
+}
