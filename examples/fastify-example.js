@@ -4,13 +4,63 @@
  */
 
 const fastify = require('fastify')({ logger: true });
-const { apiSniffer } = require('api-sniffer');
+const { store } = require('../src/store');
 
-// Register API Sniffer plugin
-fastify.register(apiSniffer.fastify(), {
-  logLevel: 'full',
-  maxLogs: 1000,
-  maskFields: ['password', 'token']
+// Manual integration of API Sniffer functionality
+fastify.addHook('onRequest', async (request, reply) => {
+  request.startTime = Date.now();
+});
+
+fastify.addHook('onSend', async (request, reply, payload) => {
+  const endTime = Date.now();
+  const responseTime = endTime - request.startTime;
+
+  // Capture request data
+  const requestData = {
+    method: request.method,
+    path: request.url,
+    query: request.query,
+    ip: request.ip || request.connection?.remoteAddress || 'unknown',
+    headers: request.headers
+  };
+
+  // Capture request body
+  if (request.body) {
+    requestData.body = request.body;
+  }
+
+  // Capture response data
+  const responseData = {
+    statusCode: reply.statusCode,
+    headers: reply.getHeaders()
+  };
+
+  // Capture response body
+  if (payload) {
+    const contentType = reply.getHeader('content-type') || '';
+    
+    if (typeof payload === 'string') {
+      responseData.body = payload;
+    } else if (Buffer.isBuffer(payload)) {
+      if (contentType.includes('application/json') || contentType.includes('text/')) {
+        responseData.body = payload.toString('utf8');
+      } else {
+        responseData.body = `[${contentType || 'binary'}] ${payload.length} bytes`;
+      }
+    } else {
+      responseData.body = payload;
+    }
+  }
+
+  // Log the request/response
+  store.addLog({
+    request: requestData,
+    response: responseData,
+    responseTime,
+    timestamp: new Date().toISOString()
+  });
+
+  return payload;
 });
 
 // Sample routes
@@ -62,16 +112,45 @@ const start = async () => {
     await fastify.listen({ port: PORT });
     console.log(`✅ Fastify server running on http://localhost:${PORT}`);
     console.log('📊 API Sniffer is monitoring all requests');
+    
+    // Start UI server
+    try {
+      const { apiSniffer } = require('../src/index');
+      const uiResult = await apiSniffer.startUI({
+        port: 3333,
+        host: 'localhost'
+      });
+      console.log(`🌐 UI Dashboard started at: ${uiResult.dashboardUrl}`);
+      console.log('🚀 Opening dashboard in browser...');
+      
+      // Auto-open in browser
+      const { exec } = require('child_process');
+      const command = process.platform === 'win32' ? 'start' : 
+                     process.platform === 'darwin' ? 'open' : 'xdg-open';
+      exec(`${command} ${uiResult.dashboardUrl}`);
+    } catch (uiError) {
+      console.warn(`⚠️  Failed to start UI server: ${uiError.message}`);
+      console.log('💡 You can start it manually with: npx api-sniffer ui');
+    }
+    
     console.log('\n📋 Available endpoints:');
     console.log('  GET  /');
     console.log('  GET  /api/users');
     console.log('  POST /api/users');
     console.log('  GET  /api/users/:id');
     
-    console.log('\n🔥 Try these commands in another terminal:');
-    console.log('  npx api-sniffer watch    # Live dashboard');
-    console.log('  npx api-sniffer stats    # View stats');
-    console.log('  npx api-sniffer logs     # View recent logs');
+    console.log('\n💡 Features demonstrated:');
+    console.log('  • Automatic UI server startup');
+    console.log('  • Browser auto-open');
+    console.log('  • Zero manual configuration');
+    console.log('  • Sensitive data masking');
+    
+    
+    console.log('\n🎯 Make some requests to see the dashboard in action:');
+    console.log(`  curl http://localhost:${PORT}/`);
+    console.log(`  curl http://localhost:${PORT}/api/users`);
+    console.log(`  curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"name":"Charlie","email":"charlie@example.com"}'`);
+    console.log(`  curl http://localhost:${PORT}/api/users/404`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

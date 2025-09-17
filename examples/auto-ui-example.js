@@ -89,10 +89,6 @@ app.listen(PORT, () => {
   console.log('  • Zero manual configuration');
   console.log('  • Sensitive data masking');
   
-  console.log('\n🔥 Try these commands in another terminal:');
-  console.log('  npx api-sniffer watch    # Live dashboard');
-  console.log('  npx api-sniffer stats    # View stats');
-  console.log('  npx api-sniffer logs     # View recent logs');
   
   console.log('\n🎯 Make some requests to see the dashboard in action:');
   console.log(`  curl http://localhost:${PORT}/`);
@@ -101,4 +97,5 @@ app.listen(PORT, () => {
   console.log(`  curl -X POST http://localhost:${PORT}/api/auth/login -H "Content-Type: application/json" -d '{"username":"admin","password":"secret123"}'`);
   console.log(`  curl http://localhost:${PORT}/api/error`);
 });
+
 

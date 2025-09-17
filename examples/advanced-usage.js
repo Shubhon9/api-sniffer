@@ -154,10 +154,6 @@ app.listen(PORT, async () => {
   console.log('  GET  /api/export?format=json');
   console.log('  GET  /api/export?format=csv');
   
-  console.log('\n🔥 Try these commands in another terminal:');
-  console.log('  npx api-sniffer watch    # Live dashboard');
-  console.log('  npx api-sniffer stats    # View stats');
-  console.log('  npx api-sniffer logs     # View recent logs');
   
   console.log('\n💡 Advanced features demonstrated:');
   console.log('  • Custom file store with specific configuration');
@@ -174,4 +170,5 @@ process.on('SIGINT', () => {
   customStore.destroy();
   process.exit(0);
 });
+
 

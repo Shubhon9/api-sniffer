@@ -1,87 +1,163 @@
 /**
- * TypeScript Example
- * Using API Sniffer with TypeScript
+ * TypeScript Example - API Sniffer with TypeScript
+ * Demonstrates type-safe API monitoring with automatic dashboard
  */
 
 import express, { Request, Response } from 'express';
-import { apiSniffer, ApiSnifferOptions, FileStore, LogEntry } from 'api-sniffer';
+// @ts-ignore - api-sniffer types are not fully exported
+import { apiSniffer, FileStore } from 'api-sniffer';
+
+// ============================================================================
+// TYPES & INTERFACES
+// ============================================================================
+
+interface ApiSnifferOptions {
+  logLevel?: 'minimal' | 'headers-only' | 'full';
+  maxLogs?: number;
+  maskFields?: string[];
+  fileStore?: boolean;
+  filePath?: string;
+  store?: FileStore;
+}
+
+interface LogEntry {
+  request: {
+    method: string;
+    path: string;
+    query?: Record<string, any>;
+    ip?: string;
+    headers?: string;
+    body?: string;
+  };
+  response: {
+    statusCode: number;
+    headers?: string;
+    body?: string;
+  };
+  responseTime: number;
+  timestamp: string;
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  created?: string;
+}
+
+interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: { username: string };
+  expires: string;
+}
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const CONFIG = {
+  PORT: process.env.PORT || 3000,
+  UI_PORT: 3333,
+  LOG_FILE: './typescript-logs.json',
+  MAX_LOGS: 2000,
+  MASK_FIELDS: ['password', 'token', 'secret', 'apiKey', 'authorization'] as string[]
+};
+
+const SAMPLE_USERS: User[] = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@example.com' }
+];
+
+// ============================================================================
+// SETUP
+// ============================================================================
 
 const app = express();
 
-// Add body parser middleware
+// Middleware
 app.use(express.json());
 
-// TypeScript configuration with proper typing
-const options: ApiSnifferOptions = {
+// Create custom store
+const customStore = new FileStore({
+  filePath: CONFIG.LOG_FILE,
+  maxSize: CONFIG.MAX_LOGS,
+  maskFields: CONFIG.MASK_FIELDS
+});
+
+// Configure API Sniffer
+const snifferOptions: ApiSnifferOptions = {
   logLevel: 'full',
-  maxLogs: 1000,
-  maskFields: ['password', 'token', 'secret'],
-  fileStore: true,
-  filePath: './typescript-logs.json'
+  maxLogs: CONFIG.MAX_LOGS,
+  maskFields: CONFIG.MASK_FIELDS,
+  store: customStore
 };
 
-// Add API Sniffer middleware
-app.use(apiSniffer(options));
+app.use(apiSniffer(snifferOptions));
 
-// Create a custom store with TypeScript
-const customStore = new FileStore({
-  filePath: './custom-typescript-logs.json',
-  maxSize: 2000,
-  maskFields: ['apiKey', 'authorization']
-});
+// ============================================================================
+// EVENT HANDLERS
+// ============================================================================
 
-// Listen for new logs with proper typing
 customStore.on('newLog', (logEntry: LogEntry) => {
-  console.log(`📥 New request: ${logEntry.request.method} ${logEntry.request.path} -> ${logEntry.response.statusCode}`);
+  const { method, path } = logEntry.request;
+  const { statusCode } = logEntry.response;
+  console.log(`📥 ${method} ${path} -> ${statusCode}`);
 });
 
-// Sample routes with TypeScript
-app.get('/', (req: Request, res: Response) => {
-  res.json({ 
-    message: 'TypeScript API Sniffer Example', 
+// ============================================================================
+// ROUTE HANDLERS
+// ============================================================================
+
+const handleRoot = (req: Request, res: Response): void => {
+  res.json({
+    message: 'TypeScript API Sniffer Example',
     timestamp: new Date().toISOString(),
-    features: ['TypeScript Support', 'Type Safety', 'IntelliSense']
+    features: ['TypeScript Support', 'Type Safety', 'IntelliSense', 'Auto Dashboard']
   });
-});
+};
 
-app.get('/api/users', (req: Request, res: Response) => {
-  res.json({ 
-    users: [
-      { id: 1, name: 'Alice', email: 'alice@example.com' },
-      { id: 2, name: 'Bob', email: 'bob@example.com' }
-    ] 
-  });
-});
+const handleGetUsers = (req: Request, res: Response): void => {
+  res.json({ users: SAMPLE_USERS });
+};
 
-app.post('/api/users', (req: Request, res: Response) => {
-  const user = {
+const handleCreateUser = (req: Request, res: Response): void => {
+  const newUser: User = {
     id: Date.now(),
     ...req.body,
     created: new Date().toISOString()
   };
-  res.status(201).json({ user, message: 'User created successfully' });
-});
-
-// Route with sensitive data (will be masked)
-app.post('/api/auth/login', (req: Request, res: Response) => {
-  const { username, password } = req.body;
   
-  // This will be automatically masked by api-sniffer
-  res.json({
+  res.status(201).json({
+    user: newUser,
+    message: 'User created successfully'
+  });
+};
+
+const handleLogin = (req: Request<{}, LoginResponse, LoginRequest>, res: Response): void => {
+  const { username } = req.body;
+  
+  // Sensitive data will be automatically masked by api-sniffer
+  const response: LoginResponse = {
     token: 'secret-jwt-token-here',
     user: { username },
     expires: new Date(Date.now() + 3600000).toISOString()
-  });
-});
+  };
+  
+  res.json(response);
+};
 
-// Route to demonstrate programmatic access with TypeScript
-app.get('/api/stats', (req: Request, res: Response) => {
+const handleStats = (req: Request, res: Response): void => {
   const stats = apiSniffer.utils.getStats();
   const recentLogs = apiSniffer.utils.getLogs({ limit: 5 });
   
   res.json({
     statistics: stats,
-    recentLogs: recentLogs.map(log => ({
+    recentLogs: recentLogs.map((log: LogEntry) => ({
       method: log.request.method,
       path: log.request.path,
       status: log.response.statusCode,
@@ -89,66 +165,93 @@ app.get('/api/stats', (req: Request, res: Response) => {
       timestamp: log.timestamp
     }))
   });
-});
+};
 
-// Route to demonstrate filtering with TypeScript
-app.get('/api/logs/errors', (req: Request, res: Response) => {
+const handleErrorLogs = (req: Request, res: Response): void => {
   const errorLogs = apiSniffer.utils.getLogs({
     statusCode: 500,
     limit: 10
   });
   
   res.json({
-    errorLogs: errorLogs.map(log => ({
+    errorLogs: errorLogs.map((log: LogEntry) => ({
       method: log.request.method,
       path: log.request.path,
       timestamp: log.timestamp,
       responseTime: log.responseTime
     }))
   });
-});
+};
 
-const PORT = process.env.PORT || 3000;
+// ============================================================================
+// ROUTES
+// ============================================================================
 
-app.listen(PORT, async () => {
-  console.log(`✅ TypeScript server running on http://localhost:${PORT}`);
-  console.log('📊 API Sniffer with TypeScript support is monitoring all requests');
-  
-  // Start UI server
+app.get('/', handleRoot);
+app.get('/api/users', handleGetUsers);
+app.post('/api/users', handleCreateUser);
+app.post('/api/auth/login', handleLogin);
+app.get('/api/stats', handleStats);
+app.get('/api/logs/errors', handleErrorLogs);
+
+// ============================================================================
+// SERVER STARTUP
+// ============================================================================
+
+const startServer = async (): Promise<void> => {
   try {
-    const uiResult = await apiSniffer.startUI({ 
-      port: 3333, 
-      store: customStore 
+    // Start main server
+    app.listen(CONFIG.PORT, () => {
+      console.log(`✅ TypeScript server running on http://localhost:${CONFIG.PORT}`);
+      console.log('📊 API Sniffer with TypeScript support is monitoring all requests');
     });
-    console.log(`✅ UI Dashboard started at: ${uiResult.dashboardUrl}`);
-  } catch (error) {
-    console.error('❌ Failed to start UI server:', error.message);
-  }
-  
-  console.log('\n📋 Available endpoints:');
-  console.log('  GET  /');
-  console.log('  GET  /api/users');
-  console.log('  POST /api/users');
-  console.log('  POST /api/auth/login');
-  console.log('  GET  /api/stats');
-  console.log('  GET  /api/logs/errors');
-  
-  console.log('\n🔥 Try these commands in another terminal:');
-  console.log('  npx api-sniffer watch    # Live dashboard');
-  console.log('  npx api-sniffer stats    # View stats');
-  console.log('  npx api-sniffer logs     # View recent logs');
-  
-  console.log('\n💡 TypeScript features demonstrated:');
-  console.log('  • Full type safety with ApiSnifferOptions');
-  console.log('  • Proper typing for LogEntry and other interfaces');
-  console.log('  • IntelliSense support in your IDE');
-  console.log('  • Compile-time error checking');
-});
 
-// Cleanup on exit
-process.on('SIGINT', () => {
+    // Start UI dashboard
+    const uiResult = await apiSniffer.startUI({
+      port: CONFIG.UI_PORT,
+      store: customStore
+    });
+    
+    console.log(`✅ UI Dashboard started at: ${uiResult.dashboardUrl}`);
+    console.log('\n📋 Available endpoints:');
+    console.log('  GET  /');
+    console.log('  GET  /api/users');
+    console.log('  POST /api/users');
+    console.log('  POST /api/auth/login');
+    console.log('  GET  /api/stats');
+    console.log('  GET  /api/logs/errors');
+    
+    console.log('\n💡 TypeScript features demonstrated:');
+    console.log('  • Full type safety with interfaces');
+    console.log('  • Proper typing for requests/responses');
+    console.log('  • IntelliSense support in your IDE');
+    console.log('  • Compile-time error checking');
+    console.log('  • Organized code structure');
+    
+  } catch (error) {
+    console.error('❌ Failed to start UI server:', (error as Error).message);
+    console.log('💡 You can start it manually with: npx api-sniffer ui');
+  }
+};
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+const cleanup = (): void => {
   console.log('\n👋 Shutting down server...');
   customStore.destroy();
   process.exit(0);
-});
+};
 
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
+
+// ============================================================================
+// START APPLICATION
+// ============================================================================
+
+startServer().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});

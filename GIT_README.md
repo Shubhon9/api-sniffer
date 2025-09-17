@@ -34,9 +34,10 @@ api-sniffer/
 
 4. **Run CLI commands:**
    ```bash
-   npx api-sniffer watch    # Terminal dashboard
-   npx api-sniffer ui       # Web dashboard
-   npx api-sniffer stats    # View statistics
+   // Access logs programmatically
+   const { apiSniffer } = require('api-sniffer');
+   const stats = apiSniffer.utils.getStats();
+   const serverInfo = await apiSniffer.startUI({ port: 3333 });
    ```
 
 ## 📦 Publishing
@@ -59,11 +60,13 @@ npm publish
 
 See the `examples/` directory for usage examples:
 - `basic-express.js` - Basic Express setup
-- `koa-example.js` - Koa framework example
+- `koa-example.js` - Koa framework example with auto-start dashboard
 - `fastify-example.js` - Fastify framework example
-- `advanced-usage.js` - Advanced features
+- `advanced-usage.js` - Advanced features and custom store
 - `auto-ui-example.js` - Auto-start UI server
-- `typescript-example.ts` - TypeScript usage
+- `typescript-example.ts` - TypeScript usage with full type safety
+- `simple-fastify.js` - Simple Fastify setup
+- `test-simple.js` - Basic testing example
 
 ## 🎯 Features
 

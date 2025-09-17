@@ -72,9 +72,5 @@ app.listen(PORT, () => {
   console.log('  POST /api/users');
   console.log('  GET  /api/users/:id');
   
-  console.log('\n🔥 Try these commands in another terminal:');
-  console.log('  npx api-sniffer watch    # Live dashboard');
-  console.log('  npx api-sniffer stats    # View stats');
-  console.log('  npx api-sniffer logs     # View recent logs');
   
 });

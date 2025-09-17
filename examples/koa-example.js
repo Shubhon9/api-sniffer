@@ -1,6 +1,6 @@
 /**
- * Koa Example
- * Using API Sniffer with Koa framework
+ * Koa Example with Auto-Start Dashboard
+ * Using API Sniffer with Koa framework and automatic UI dashboard on port 3333
  */
 
 const Koa = require('koa');
@@ -70,18 +70,49 @@ app.use(router.allowedMethods());
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`✅ Koa server running on http://localhost:${PORT}`);
   console.log('📊 API Sniffer is monitoring all requests');
+  
+  // Start UI server manually
+  try {
+    const uiResult = await apiSniffer.startUI({ 
+      port: 3333, 
+      host: 'localhost',
+      store: apiSniffer.store
+    });
+    console.log(`✅ API Sniffer UI Dashboard started at: ${uiResult.dashboardUrl}`);
+    
+    // Auto-open in browser
+    const { exec } = require('child_process');
+    const command = process.platform === 'win32' ? 'start' : 
+                   process.platform === 'darwin' ? 'open' : 'xdg-open';
+    exec(`${command} ${uiResult.dashboardUrl}`);
+    console.log('🌍 Opening dashboard in browser...');
+  } catch (error) {
+    console.warn(`⚠️  Failed to start UI server: ${error.message}`);
+    console.log('💡 You can start it manually with: npx api-sniffer ui');
+  }
+  
   console.log('\n📋 Available endpoints:');
   console.log('  GET  /');
   console.log('  GET  /api/users');
   console.log('  POST /api/users');
   console.log('  GET  /api/users/:id');
   
-  console.log('\n🔥 Try these commands in another terminal:');
-  console.log('  npx api-sniffer watch    # Live dashboard');
-  console.log('  npx api-sniffer stats    # View stats');
-  console.log('  npx api-sniffer logs     # View recent logs');
+  console.log('\n💡 Features demonstrated:');
+  console.log('  • Automatic UI server startup');
+  console.log('  • Browser auto-open');
+  console.log('  • Zero manual configuration');
+  console.log('  • Sensitive data masking');
+  
+  
+  console.log('\n🎯 Make some requests to see the dashboard in action:');
+  console.log(`  curl http://localhost:${PORT}/`);
+  console.log(`  curl http://localhost:${PORT}/api/users`);
+  console.log(`  curl -X POST http://localhost:${PORT}/api/users -H "Content-Type: application/json" -d '{"name":"Charlie","email":"charlie@example.com"}'`);
+  console.log(`  curl http://localhost:${PORT}/api/users/1`);
+  console.log(`  curl http://localhost:${PORT}/api/users/404`);
 });
+
 

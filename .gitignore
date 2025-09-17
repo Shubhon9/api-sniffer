@@ -131,7 +131,6 @@ temp/
 .api-sniffer-logs.json
 
 # Documentation files (keep local only)
-README.md
 UI-DASHBOARD.md
 UI_TESTING_GUIDE.md
 TESTING_GUIDE.md
