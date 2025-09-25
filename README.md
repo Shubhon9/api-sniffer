@@ -323,6 +323,28 @@ app.use(apiSniffer({
 
 Start the web-based dashboard to monitor your API:
 
+### Dashboard Screenshots
+
+<div align="center">
+  <img src="ref-images/dashboard.png" alt="API Sniffer Dashboard" width="800" />
+  <p><em>Main Dashboard Overview</em></p>
+</div>
+
+<div align="center">
+  <img src="ref-images/req-table.png" alt="Request Table View" width="800" />
+  <p><em>Request Table with Detailed Logs</em></p>
+</div>
+
+<div align="center">
+  <img src="ref-images/view-overview.png" alt="Overview" width="800" />
+  <p><em>Overview Statistics</em></p>
+</div>
+
+<div align="center">
+  <img src="ref-images/view-req.png" alt="Request Details" width="800" />
+  <p><em>Individual Request Details</em></p>
+</div>
+
 ```javascript
 const { apiSniffer } = require('api-sniffer');
 
