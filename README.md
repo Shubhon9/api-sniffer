@@ -2,7 +2,8 @@
   <img src="api-sniffer-logo-sq.png" alt="API Sniffer Logo" width="120" height="120" />
 </div>
 
-🔍 API Sniffer
+## 🔍 API Sniffer
+
 [![npm version](https://badge.fury.io/js/api-sniffer.svg)](https://badge.fury.io/js/api-sniffer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
