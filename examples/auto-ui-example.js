@@ -21,7 +21,8 @@ app.use(apiSniffer({
   autoStartUI: true,    // Automatically start UI server
   uiPort: 3333,         // UI server port
   uiHost: 'localhost',  // UI server host
-  uiOpen: true          // Automatically open UI in browser
+  uiOpen: true,         // Automatically open UI in browser
+  showAsciiLogo: true   // Show ASCII logo on startup (default: true)
 }));
 
 // Sample routes

@@ -1,4 +1,7 @@
-# 🔍 API Sniffer
+<div align="center">
+  <img src="api-sniffer-logo-sq.png" alt="API Sniffer Logo" width="120" height="120" />
+  <h1>🔍 API Sniffer</h1>
+</div>
 
 [![npm version](https://badge.fury.io/js/api-sniffer.svg)](https://badge.fury.io/js/api-sniffer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -54,7 +57,8 @@ app.use(apiSniffer({
   logLevel: 'full',
   autoStartUI: true,    // Automatically start UI server
   uiPort: 3333,         // UI server port
-  uiOpen: true          // Open UI in browser automatically
+  uiOpen: true,         // Open UI in browser automatically
+  showAsciiLogo: true   // Show ASCII logo on startup (default: true)
 }));
 
 app.get('/api/users', (req, res) => {
@@ -64,6 +68,19 @@ app.get('/api/users', (req, res) => {
 app.listen(3000);
 // UI Dashboard will start automatically on port 3333
 // Browser will open automatically to the dashboard
+```
+
+### Disable ASCII Logo
+
+```javascript
+// Disable ASCII logo display
+app.use(apiSniffer({
+  logLevel: 'full',
+  autoStartUI: true,
+  uiPort: 3333,
+  uiOpen: true,
+  showAsciiLogo: false  // Disable ASCII logo
+}));
 ```
 
 ### TypeScript Support
@@ -396,6 +413,7 @@ app.use(autoMiddleware.express());
 | `uiPort` | number | `3333` | Port for UI server |
 | `uiHost` | string | `'localhost'` | Host for UI server |
 | `uiOpen` | boolean | `false` | Automatically open UI in browser |
+| `showAsciiLogo` | boolean | `true` | Show ASCII logo on startup |
 
 ### Store Classes
 
@@ -542,6 +560,51 @@ const apiPosts = store.getLogs({
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🖥️ CLI Usage
+
+API Sniffer includes a command-line interface for starting the web dashboard independently.
+
+### Start Web Dashboard
+
+```bash
+# Start dashboard with default settings
+npx api-sniffer ui
+
+# Start dashboard on custom port
+npx api-sniffer ui --port 4000
+
+# Start dashboard and open in browser
+npx api-sniffer ui --open
+
+# Start dashboard without ASCII logo
+npx api-sniffer ui --no-logo
+
+# Start dashboard with custom host
+npx api-sniffer ui --host 0.0.0.0 --port 3333
+```
+
+### CLI Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-p, --port <port>` | Port to run the dashboard on | `3333` |
+| `-h, --host <host>` | Host to bind to | `localhost` |
+| `--open` | Automatically open the dashboard in browser | `false` |
+| `--no-logo` | Disable ASCII logo display | `false` |
+
+### Examples
+
+```bash
+# Production setup - bind to all interfaces
+npx api-sniffer ui --host 0.0.0.0 --port 3333
+
+# Development setup - auto-open browser
+npx api-sniffer ui --open --port 3333
+
+# Minimal setup - no logo, custom port
+npx api-sniffer ui --no-logo --port 4000
+```
 
 ## 🐛 Issues & Support
 
